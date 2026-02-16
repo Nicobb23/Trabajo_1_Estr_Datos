@@ -1,0 +1,173 @@
+Jhosef Nicolas Beltran Barrera
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Algoritmo menor a mayor</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<h1>Algoritmos menor a mayor</h1>
+
+<select id="modo">
+<option value="selection">Algoritmo Original (version profe)</option>
+<option value="merge">Algoritmo Mejorado (version mejorada)</option>
+</select>
+
+<div class="info">
+<span id="estado">Pasadas: 0 | Comparaciones: 0</span>
+</div>
+
+<div id="contenedor" class="contenedor"></div>
+
+<button onclick="ejecutar()">EJECUTAR</button>
+<button onclick="reiniciar()">REINICIAR</button>
+
+<script>
+
+let datos = [4,7,50,25,16,81,31,32,40,10];
+let original = [...datos];
+
+let pasada=0;
+let j=1;
+let min=0;
+let comparaciones=0;
+let loop;
+
+let mergeSize = 1;
+let mergeIndex = 0;
+
+function dibujar(){
+
+let cont=document.getElementById("contenedor");
+cont.innerHTML="";
+
+datos.forEach((n,i)=>{
+let d=document.createElement("div");
+d.className="caja";
+
+if(i===pasada)d.classList.add("actual");
+if(i===min)d.classList.add("menor");
+if(i===j)d.classList.add("comparando");
+
+d.textContent=n;
+cont.appendChild(d);
+});
+
+document.getElementById("estado").textContent =
+`Pasadas: ${pasada} | Comparaciones: ${comparaciones}`;
+}
+
+function pasoSelection(){
+
+if(pasada>=datos.length-1){
+clearInterval(loop);
+return;
+}
+
+if(j===pasada+1) min=pasada;
+
+if(j<datos.length){
+
+comparaciones++;
+
+if(datos[j]<datos[min]) min=j;
+
+j++;
+
+}else{
+
+if(min!==pasada){
+let t=datos[pasada];
+datos[pasada]=datos[min];
+datos[min]=t;
+}
+
+pasada++;
+j=pasada+1;
+}
+
+dibujar();
+}
+
+function pasoMerge(){
+
+if(mergeSize >= datos.length){
+clearInterval(loop);
+return;
+}
+
+let left = mergeIndex;
+let mid = Math.min(left + mergeSize, datos.length);
+let right = Math.min(left + mergeSize*2, datos.length);
+
+let temp = [];
+let i=left;
+let j=mid;
+
+while(i<mid && j<right){
+comparaciones++;
+if(datos[i] < datos[j]) temp.push(datos[i++]);
+else temp.push(datos[j++]);
+}
+
+while(i<mid) temp.push(datos[i++]);
+while(j<right) temp.push(datos[j++]);
+
+for(let k=0;k<temp.length;k++){
+datos[left+k] = temp[k];
+}
+
+mergeIndex += mergeSize*2;
+
+if(mergeIndex >= datos.length){
+mergeIndex = 0;
+mergeSize *= 2;
+pasada++;
+}
+
+dibujar();
+}
+
+// ===== BOTONES =====
+function ejecutar(){
+
+clearInterval(loop);
+
+let modo=document.getElementById("modo").value;
+
+if(modo==="selection"){
+loop=setInterval(pasoSelection,400);
+}
+else{
+loop=setInterval(pasoMerge,600);
+}
+}
+
+function reiniciar(){
+
+datos = [...original].sort(()=>Math.random()-0.5);
+
+pasada=0;
+comparaciones=0;
+
+j=1;
+min=0;
+
+mergeSize=1;
+mergeIndex=0;
+
+clearInterval(loop);
+
+dibujar();
+}
+
+dibujar();
+
+</script>
+
+</body>
+</html>
